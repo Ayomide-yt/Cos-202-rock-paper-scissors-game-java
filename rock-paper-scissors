@@ -1,0 +1,187 @@
+import java.util.Random;
+import java.util.Scanner;
+
+/**
+ * A console-based Rock Paper Scissors game.
+ * The player competes against the computer until they choose to quit.
+ */
+public class RockPaperScissors {
+
+    // The three possible choices, in order. Used for both display and win logic.
+    private static final String[] CHOICES = {"Rock", "Paper", "Scissors"};
+
+    private final Scanner scanner;
+    private final Random random;
+
+    private int playerScore = 0;
+    private int computerScore = 0;
+    private int ties = 0;
+
+    public RockPaperScissors() {
+        this.scanner = new Scanner(System.in);
+        this.random = new Random();
+    }
+
+    public static void main(String[] args) {
+        RockPaperScissors game = new RockPaperScissors();
+        game.run();
+    }
+
+    /** Main game loop. */
+    public void run() {
+        printWelcome();
+
+        boolean playing = true;
+        while (playing) {
+            int playerChoice = getPlayerChoice();
+
+            // A choice of -1 signals the player wants to quit.
+            if (playerChoice == -1) {
+                playing = false;
+                continue;
+            }
+
+            int computerChoice = random.nextInt(3);
+
+            System.out.println("\nYou chose:     " + CHOICES[playerChoice]);
+            System.out.println("Computer chose: " + CHOICES[computerChoice]);
+
+            int result = determineWinner(playerChoice, computerChoice);
+            announceResult(result);
+            updateScore(result);
+            printScore();
+
+            playing = askPlayAgain();
+        }
+
+        printFinalScore();
+        scanner.close();
+    }
+
+    private void printWelcome() {
+        System.out.println("=================================");
+        System.out.println("   ROCK - PAPER - SCISSORS");
+        System.out.println("=================================");
+        System.out.println("Rock beats Scissors");
+        System.out.println("Scissors beats Paper");
+        System.out.println("Paper beats Rock");
+        System.out.println();
+    }
+
+    /**
+     * Prompts the player for their move.
+     * @return 0 for Rock, 1 for Paper, 2 for Scissors, or -1 if the player quits.
+     */
+    private int getPlayerChoice() {
+        while (true) {
+            System.out.println("Choose one:");
+            System.out.println("  1. Rock");
+            System.out.println("  2. Paper");
+            System.out.println("  3. Scissors");
+            System.out.println("  4. Quit");
+            System.out.print("> ");
+
+            String input = scanner.nextLine().trim();
+
+            switch (input) {
+                case "1":
+                case "rock":
+                case "Rock":
+                    return 0;
+                case "2":
+                case "paper":
+                case "Paper":
+                    return 1;
+                case "3":
+                case "scissors":
+                case "Scissors":
+                    return 2;
+                case "4":
+                case "quit":
+                case "q":
+                case "Q":
+                    return -1;
+                default:
+                    System.out.println("Invalid input. Please enter 1, 2, 3, or 4.\n");
+            }
+        }
+    }
+
+    /**
+     * Determines the outcome of a round.
+     * @return 0 for tie, 1 for player win, 2 for computer win.
+     */
+    int determineWinner(int playerChoice, int computerChoice) {
+        if (playerChoice == computerChoice) {
+            return 0; // Tie
+        }
+
+        // Rock(0) beats Scissors(2), Paper(1) beats Rock(0), Scissors(2) beats Paper(1)
+        // This holds true when (player - computer + 3) % 3 == 1
+        if ((playerChoice - computerChoice + 3) % 3 == 1) {
+            return 1; // Player wins
+        } else {
+            return 2; // Computer wins
+        }
+    }
+
+    private void announceResult(int result) {
+        switch (result) {
+            case 0:
+                System.out.println("It's a tie!");
+                break;
+            case 1:
+                System.out.println("You win this round!");
+                break;
+            case 2:
+                System.out.println("Computer wins this round!");
+                break;
+        }
+    }
+
+    private void updateScore(int result) {
+        switch (result) {
+            case 0:
+                ties++;
+                break;
+            case 1:
+                playerScore++;
+                break;
+            case 2:
+                computerScore++;
+                break;
+        }
+    }
+
+    private void printScore() {
+        System.out.println("\nScore -> You: " + playerScore
+                + " | Computer: " + computerScore
+                + " | Ties: " + ties);
+        System.out.println("---------------------------------\n");
+    }
+
+    private boolean askPlayAgain() {
+        System.out.print("Play again? (y/n): ");
+        String input = scanner.nextLine().trim().toLowerCase();
+        System.out.println();
+        return input.equals("y") || input.equals("yes");
+    }
+
+    private void printFinalScore() {
+        System.out.println("=================================");
+        System.out.println("Final Score");
+        System.out.println("You: " + playerScore
+                + " | Computer: " + computerScore
+                + " | Ties: " + ties);
+
+        if (playerScore > computerScore) {
+            System.out.println("Congratulations, you won overall!");
+        } else if (computerScore > playerScore) {
+            System.out.println("Computer won overall. Better luck next time!");
+        } else {
+            System.out.println("Overall result: a tie!");
+        }
+        System.out.println("Thanks for playing!");
+        System.out.println("=================================");
+    }
+}
